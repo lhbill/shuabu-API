@@ -13,25 +13,41 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+      - name: 安装requests库
+        run: pip3 install requests
+        continue-on-error: true  # 允许该步骤失败后继续执行后续步骤，便于后续检查错误
       - name: 开始
         run: |
-          pip3 install requests
-          user='${{ secrets.USER }}'
-          passwd='${{ secrets.PWD }}' 
-          open_get_weather='${{ secrets.OPEN_GET_WEATHER }}'
-          area='${{ secrets.AREA }}'
-          sckey='${{ secrets.SCKEY }}'
-          python3 main.py $user $passwd $open_get_weather $area $sckey
-          if [ $? -ne 0 ]; then
+          user="${{ secrets.USER }}"
+          passwd="${{ secrets.PWD }}"
+          open_get_weather="${{ secrets.OPEN_GET_WEATHER }}"
+          area="${{ secrets.AREA }}"
+          sckey="${{ secrets.SCKEY }}"
+          python3 main.py "$user" "$passwd" "$open_get_weather" "$area" "$sckey"
+          status=$?
+          if [ $status -ne 0 ]; then
             echo "命令执行失败，重新从第一步开始运行..."
-            # 这里重新执行第一步和第二步
-            uses: actions/checkout@v4
-            uses: actions/setup-python@v4
-            with:
-              python-version: '3.12'
-            pip3 install requests
-            python3 main.py $user $passwd $open_get_weather $area $sckey
+            # 将重新执行的步骤放到steps中，根据条件判断是否执行
           else
             echo "脚本成功运行。"
           time=$(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')
           echo "最后一次运行时间: $time（北京时间）"
+          # 以下是重新执行相关步骤的示例，可根据实际情况调整
+          if [ $status -ne 0 ]; then
+            - name: 重新Checkout codes
+              uses: actions/checkout@v4
+            - name: 重新初始化Python
+              uses: actions/setup-python@v4
+              with:
+                python-version: '3.12'
+            - name: 重新安装requests库
+              run: pip3 install requests
+            - name: 再次运行main.py
+              run: |
+                user="${{ secrets.USER }}"
+                passwd="${{ secrets.PWD }}"
+                open_get_weather="${{ secrets.OPEN_GET_WEATHER }}"
+                area="${{ secrets.AREA }}"
+                sckey="${{ secrets.SCKEY }}"
+                python3 main.py "$user" "$passwd" "$open_get_weather" "$area" "$sckey"
+          fi
