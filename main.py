@@ -6,7 +6,7 @@ import random
 import re
 import sys
 import time
-
+import requests.exceptions
 import requests
 
 # 推送server酱
@@ -240,7 +240,27 @@ def get_app_token(login_token):
             response = requests.get(url, headers=headers, timeout=5).json()
             app_token = response['token_info']['app_token']
             return app_token
-         
+        except requests.exceptions.ConnectTimeout:
+            print(f"请求超时，第 {retry + 1} 次重试...")
+        except requests.exceptions.RequestException as e:
+            print(f"请求异常: {e}")
+    print("已达到最大重试次数，获取 app_token 失败。")
+
+# 推送server
+def push_wx(desp=""):
+    if sckey == 'NO':
+        print(sckey == "NO")
+        return
+    else:
+        server_url = f"https://sctapi.ftqq.com/{sckey}.send"
+        params = {
+            "text": '【✍小米运动步数修改✍】',
+            "desp": desp
+        }
+
+        response = requests.get(server_url, params=params).text
+        print(response)
+        
 def main_handler(event, context):
     getBeijinTime()
 
