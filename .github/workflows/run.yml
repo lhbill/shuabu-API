@@ -1,7 +1,7 @@
 name: shua
 on:
   schedule:
-    - cron: '05 11 * * *'
+    - cron: '05 11 * * *'  # 每天UTC时间11:05运行（北京时间19:05）
   workflow_dispatch:
 jobs:
   build:
@@ -9,19 +9,24 @@ jobs:
     steps:
       - name: Checkout codes
         uses: actions/checkout@v4
+      
       - name: 初始化Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-      - name: 安装requests库
+      
+      - name: 安装依赖
         run: pip install requests
+      
       - name: 运行Python脚本
         run: |
           user="${{ secrets.USER }}"
           passwd="${{ secrets.PWD }}"
-          open_get_weather="${{ secrets.OPEN_GET_WEATHER }}"
-          area="${{ secrets.AREA }}"
-          sckey="${{ secrets.SCKEY }}"
-          python3 main.py "$user" "$passwd" "$open_get_weather" "$area" "$sckey"
-          time=$(TZ=UTC-8 date +'%Y-%m-%d %H:%M:%S')
-          echo "最后一次运行时间: $time（北京时间）"
+          python3 main.py "$user" "$passwd"
+          time=$(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')
+          echo "执行时间: $time（北京时间）"
+      
+      - name: 保存执行时间
+        run: |
+          echo "最后执行时间: $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')" >> last_run.txt
+        if: always()
