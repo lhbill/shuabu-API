@@ -23,8 +23,6 @@ jobs:
           user="${{ secrets.USER }}"
           passwd="${{ secrets.PWD }}"
           python3 main.py "$user" "$passwd"
-          time=$(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')
-          echo "执行时间: $time（北京时间）"
       
       - name: 保存执行时间
         run: |
