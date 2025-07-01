@@ -1,7 +1,7 @@
 name: shua
 on:
   schedule:
-    - cron: '05 11 * * *'  # 每天UTC时间11:05运行（北京时间19:05）
+    - cron: '05 11 * * *'  # 每天UTC时间11:05（北京时间19:05）
   workflow_dispatch:
 
 jobs:
@@ -19,14 +19,10 @@ jobs:
       - name: 安装依赖
         run: pip install --no-cache-dir requests
       
-      - name: 运行Python脚本并记录时间
+      - name: 运行Python脚本
         run: |
-          user="${{ secrets.USER }}"
-          passwd="${{ secrets.PWD }}"
-          python3 main.py "$user" "$passwd"
+          # 从GitHub Secrets获取凭据
+          python3 main.py "${{ secrets.USER }}" "${{ secrets.PWD }}"
           
-          # 统一记录执行时间（仅保留最后时间）
-          time=$(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')
-          echo "执行完成时间: $time（北京时间）"
-          echo "最后执行时间: $time" >> last_run.txt
-        if: always()
+          # 记录执行时间（北京时间）
+          echo "最后执行时间: $(TZ=Asia/Shanghai date +'%Y-%m-%d %H:%M:%S')" > last_run.txt
