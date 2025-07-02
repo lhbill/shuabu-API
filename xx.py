@@ -19,8 +19,8 @@ def get_beijing_time():
     return beijing_time
     
     # 固定步数范围 18000-22000
-    min_1 = 800
-    max_1 = 1000
+    min_1 = 1500
+    max_1 = 2000
     
     user_mi = sys.argv[1]
     passwd_mi = sys.argv[2]
