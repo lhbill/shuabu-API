@@ -128,7 +128,7 @@ def get_app_token(login_token):
         return None
 
 def main_handler(event, context):
-    getBeijinTime()
+    get_beijing_time()
 
 if __name__ == "__main__":
-    getBeijinTime()
+    get_beijing_time()
