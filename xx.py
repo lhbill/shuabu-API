@@ -14,7 +14,7 @@ headers = {'User-Agent': 'MiFit/5.3.0 (iPhone; iOS 14.7.1; Scale/3.00)'}
 
 def getBeijinTime():
     # 固定步数范围 18000-22000
-    min_1 = 11000
+    min_1 = 11500
     max_1 = 12000
     
     user_mi = sys.argv[1]
