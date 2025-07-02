@@ -143,6 +143,6 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3:
         users = sys.argv[1]
         passwords = sys.argv[2]
-        batch_process(users, passwords, 18000, 22000)  # 实际使用建议设置合理步数范围
+        batch_process(users, passwords, 2000, 2500)  # 实际使用建议设置合理步数范围
     else:
         print("使用方式: python script.py 账号#账号 密码#密码")
