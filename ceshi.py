@@ -6,7 +6,7 @@ import pytz
 import time
 
 # 执行步数修改操作
-def modify_steps(account, password, min_steps, max_steps, timeout=20, max_retries=3):
+def modify_steps(account, password, min_steps, max_steps, timeout=30, max_retries=3):
     steps = random.randint(min_steps, max_steps)
     url = f"https://www.520113.xyz/api/shua?account={account}&password={password}&steps={steps}"
     
@@ -30,31 +30,36 @@ def modify_steps(account, password, min_steps, max_steps, timeout=20, max_retrie
                 beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
                 fail_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 修改失败：{error_msg}"
                 print(fail_msg)
-                return False
+                return False  # API返回错误，不重试
                 
         except requests.exceptions.Timeout:
             beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
             timeout_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 请求超时，{attempt+1}/{max_retries} 次尝试"
             print(timeout_msg)
             
-            # 如果是最后一次尝试，直接返回失败
-            if attempt == max_retries - 1:
-                return False
-                
-            # 等待一段时间后重试
-            time.sleep(5)  # 等待5秒后重试
-            
         except requests.exceptions.RequestException as e:
             beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-            error_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 请求失败：{e}"
+            error_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 请求异常({type(e).__name__})，{attempt+1}/{max_retries} 次尝试: {e}"
             print(error_msg)
-            return False
             
         except ValueError as e:
             beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-            error_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 解析 JSON 失败：{e}"
+            error_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 解析 JSON 异常，{attempt+1}/{max_retries} 次尝试: {e}"
             print(error_msg)
+        
+        # 如果是最后一次尝试，直接返回失败
+        if attempt == max_retries - 1:
+            beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+            final_fail_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 所有尝试均失败"
+            print(final_fail_msg)
             return False
+            
+        # 等待一段时间后重试
+        retry_delay = 5 * (attempt + 1)  # 递增等待时间：5, 10, 15秒
+        beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+        retry_msg = f"[{beijing_time}] 等待 {retry_delay} 秒后重试..."
+        print(retry_msg)
+        time.sleep(retry_delay)
     
     return False
 
@@ -70,4 +75,10 @@ if __name__ == "__main__":
     password = sys.argv[2]
     
     # 设置超时时间为30秒，最大重试次数为3次
-    modify_steps(account, password, min_steps, max_steps, timeout=30, max_retries=3)
+    result = modify_steps(account, password, min_steps, max_steps, timeout=30, max_retries=3)
+    
+    # 根据最终结果退出程序
+    if result:
+        sys.exit(0)  # 成功退出
+    else:
+        sys.exit(1)  # 失败退出
