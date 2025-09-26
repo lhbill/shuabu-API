@@ -6,7 +6,7 @@ from random import randint
 # 配置账号列表（自行修改）
 dataInfo = [
     {"user": "1101021057@qq.com", "pwd": "q1101021057."},  # 账号001
-    {"user": "nothanks@qq.com", "pwd": "qq1314520"},       # 账号002
+   # {"user": "nothanks@qq.com", "pwd": "qq1314520"},       # 账号002
 ]
 # 步数范围（自行调整）
 minSteps = 2760
