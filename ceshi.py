@@ -8,7 +8,7 @@ import time
 # 执行步数修改操作
 def modify_steps(account, password, min_steps, max_steps, timeout=30, max_retries=3):
     steps = random.randint(min_steps, max_steps)
-    url = f"https://www.520113.xyz/api/shua?account={account}&password={password}&steps={steps}"
+    url = f"https://www.176000.xyz/api/shua?account={account}&password={password}&steps={steps}"
     
     for attempt in range(max_retries):
         try:
