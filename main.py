@@ -2,40 +2,44 @@ import requests
 import random
 import sys
 import datetime
-import pytz 
+import pytz
 
-# 执行步数修改操作
-def modify_steps(account, password, min_steps, max_steps, timeout=20):
+# 执行步数修改操作（已去掉重试逻辑，仅单次请求）
+def modify_steps(account, password, min_steps, max_steps, timeout=30):
     steps = random.randint(min_steps, max_steps)
-    url = f"https://www.520113.xyz/api/shua?account={account}&password={password}&steps={steps}"
+    url = f"https://www.176000.xyz/api/shua?account={account}&password={password}&steps={steps}"
+    beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+    account_hide = f"{account[:3]}***{account[-3:]}"  # 统一处理账号隐藏，避免重复代码
+
     try:
+        # 单次请求，不重试
         response = requests.get(url, timeout=timeout)
-        response.raise_for_status()  # 检查 HTTP 状态码
+        response.raise_for_status()  # 触发HTTP错误（如404、500等）
         result = response.json()
-        
-        # 根据实际API返回格式调整判断逻辑
+
+        # 按API返回格式判断成功/失败
         if result.get('success') == True or result.get('status') == 'success':
-            # 获取北京时间
-            beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-            success_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 修改成功，步数：{steps}"
+            success_msg = f"[{beijing_time}] 账号 {account_hide} 修改成功，步数：{steps}"
             print(success_msg)
             return True
         else:
-            # 获取错误信息
             error_msg = result.get('message', '未知错误')
-            # 获取北京时间
-            beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-            fail_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 修改失败：{error_msg}"
+            fail_msg = f"[{beijing_time}] 账号 {account_hide} 修改失败：{error_msg}"
             print(fail_msg)
             return False
+
+    except requests.exceptions.Timeout:
+        timeout_msg = f"[{beijing_time}] 账号 {account_hide} 请求超时"
+        print(timeout_msg)
+        return False
+
     except requests.exceptions.RequestException as e:
-        beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-        error_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 请求失败：{e}"
+        error_msg = f"[{beijing_time}] 账号 {account_hide} 请求异常({type(e).__name__})：{e}"
         print(error_msg)
         return False
+
     except ValueError as e:
-        beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-        error_msg = f"[{beijing_time}] 账号 {account[:3]}***{account[-3:]} 解析 JSON 失败：{e}"
+        error_msg = f"[{beijing_time}] 账号 {account_hide} 解析JSON异常：{e}"
         print(error_msg)
         return False
 
@@ -45,9 +49,14 @@ if __name__ == "__main__":
         print("用法: python main.py <账号> <密码>")
         sys.exit(1)
     
-    min_steps = 18200
-    max_steps = 22000
+    # 配置参数
+    min_steps = 18500
+    max_steps = 23000
     account = sys.argv[1]
     password = sys.argv[2]
     
-    modify_steps(account, password, min_steps, max_steps)
+    # 调用函数（已无重试参数）
+    result = modify_steps(account, password, min_steps, max_steps, timeout=30)
+    
+    # 按结果正确退出
+    sys.exit(0 if result else 1)
