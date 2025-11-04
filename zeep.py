@@ -7,7 +7,7 @@ import pytz
 # 执行步数修改操作（已去掉重试逻辑，仅单次请求）
 def modify_steps(account, password, min_steps, max_steps, timeout=30):
     steps = random.randint(min_steps, max_steps)
-    url = f"https://daohang-dun.vercel.app/api/shua?account={account}&password={password}&steps={steps}"
+    url = f"https://www.520113.xyz/api/shua?account={account}&password={password}&steps={steps}"
     beijing_time = datetime.datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
     account_hide = f"{account[:3]}***{account[-3:]}"  # 统一处理账号隐藏，避免重复代码
 
