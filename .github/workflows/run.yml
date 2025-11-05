@@ -1,7 +1,7 @@
 name: 步数自动运行写入
 on:
-  #schedule:                #使用时删除前端#
-  #  - cron: '05 11 * * *'  # 每天UTC时间11:05（北京时间19:05）
+  schedule:                #使用时删除前端#
+    - cron: '05 06 * * *'  # 每天UTC时间06:05（北京时间14:05）
   workflow_dispatch:
 
 jobs:
